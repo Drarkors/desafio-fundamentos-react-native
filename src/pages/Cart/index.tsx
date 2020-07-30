@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 
 import { View } from 'react-native';
@@ -36,7 +36,16 @@ interface Product {
 }
 
 const Cart: React.FC = () => {
-  const { increment, decrement, products } = useCart();
+  const {
+    increment,
+    decrement,
+    products,
+    totalItensInCart,
+    cartTotal,
+  } = useCart();
+
+  const [priceTotal, setPriceTotal] = useState(0);
+  const [quantityTotal, setQuantityTotal] = useState(0);
 
   function handleIncrement(id: string): void {
     // TODO
@@ -48,23 +57,13 @@ const Cart: React.FC = () => {
     decrement(id);
   }
 
-  const cartTotal = useMemo(() => {
-    // TODO RETURN THE SUM OF THE QUANTITY OF THE PRODUCTS IN THE CART
-    const total = products.reduce((accumulator: number, product) => {
-      return accumulator + product.quantity * product.price;
-    }, 0);
+  useEffect(() => {
+    setQuantityTotal(totalItensInCart());
+  }, [totalItensInCart]);
 
-    return formatValue(total);
-  }, [products]);
-
-  const totalItensInCart = useMemo(() => {
-    // TODO RETURN THE SUM OF THE QUANTITY OF THE PRODUCTS IN THE CART
-    const total = products.reduce((accumulator: number, product) => {
-      return accumulator + product.quantity;
-    }, 0);
-
-    return total;
-  }, [products]);
+  useEffect(() => {
+    setPriceTotal(cartTotal());
+  }, [cartTotal]);
 
   return (
     <Container>
@@ -115,8 +114,8 @@ const Cart: React.FC = () => {
       </ProductContainer>
       <TotalProductsContainer>
         <FeatherIcon name="shopping-cart" color="#fff" size={24} />
-        <TotalProductsText>{`${totalItensInCart} itens`}</TotalProductsText>
-        <SubtotalValue>{cartTotal}</SubtotalValue>
+        <TotalProductsText>{`${quantityTotal} itens`}</TotalProductsText>
+        <SubtotalValue>{priceTotal}</SubtotalValue>
       </TotalProductsContainer>
     </Container>
   );
